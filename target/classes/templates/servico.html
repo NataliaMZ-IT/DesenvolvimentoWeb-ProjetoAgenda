@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Serviços | Agendamento de Serviços</title>
+
+    <link rel="stylesheet"
+          th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="app-header">
+    <nav class="navbar navbar-expand" aria-label="Navegação principal">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               th:href="@{/agenda}">
+                <span class="brand-mark" aria-hidden="true">AS</span>
+                <span>Agendamento de Serviços</span>
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/agenda}">
+                Agendas
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="container page-shell pb-5">
+
+    <div class="mb-4">
+        <p class="eyebrow mb-2">CADASTROS</p>
+        <h1 class="display-title">Serviços</h1>
+        <p class="hero-copy">
+            Cadastre os serviços disponíveis e seus respectivos valores.
+        </p>
+    </div>
+
+    <div class="alert alert-success" role="status"
+         th:if="${mensagem}" th:text="${mensagem}"></div>
+
+    <div class="alert alert-danger" role="alert"
+         th:if="${erro}" th:text="${erro}"></div>
+
+    <div class="row g-4 align-items-start">
+
+        <!-- Forms on the left -->
+        <div class="col-lg-5">
+            <section class="content-card form-card">
+                <h2 class="h4 mb-4"
+                    th:text="${servico.id == 0
+                        ? 'Novo serviço' : 'Editar serviço'}">
+                    Novo serviço
+                </h2>
+
+                <form th:action="@{/servicos/save}"
+                      th:object="${servico}" method="post">
+
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">
+                            Nome do serviço
+                        </label>
+                        <input id="nome" type="text"
+                               class="form-control"
+                               th:field="*{nome}"
+                               maxlength="50" required
+                               th:classappend="${#fields.hasErrors('nome')}
+                                   ? 'is-invalid'">
+                        <div class="invalid-feedback"
+                             th:errors="*{nome}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="valor" class="form-label">
+                            Valor (R$)
+                        </label>
+                        <input id="valor" type="number"
+                               class="form-control"
+                               th:field="*{valor}"
+                               min="0.01" step="0.01" required
+                               th:classappend="${#fields.hasErrors('valor')}
+                                   ? 'is-invalid'">
+                        <div class="invalid-feedback"
+                             th:errors="*{valor}"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/servicos}"
+                           class="btn btn-outline-secondary">
+                            Limpar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4"
+                                th:text="${servico.id == 0
+                                    ? 'Cadastrar serviço' : 'Salvar alterações'}">
+                            Cadastrar serviço
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- All services on the right -->
+        <div class="col-lg-7">
+            <section class="content-card">
+                <div class="content-card-header">
+                    <div>
+                        <p class="section-kicker mb-1">GERENCIAMENTO</p>
+                        <h2 class="h4 mb-0">Serviços cadastrados</h2>
+                    </div>
+                    <span class="badge text-bg-light"
+                          th:text="${#lists.size(servicos)}">0</span>
+                </div>
+
+                <div class="empty-state"
+                     th:if="${#lists.isEmpty(servicos)}">
+                    <h3 class="h5">Nenhum serviço cadastrado</h3>
+                    <p class="text-secondary mb-0">
+                        Use o formulário para adicionar um serviço.
+                    </p>
+                </div>
+
+                <div class="table-responsive"
+                     th:unless="${#lists.isEmpty(servicos)}">
+                    <table class="table app-table align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">Serviço</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${servicos}">
+                            <td>
+                                <div class="table-title"
+                                     th:text="${s.nome}">Nome</div>
+                                <small class="text-secondary"
+                                       th:text="|Serviço #${s.id}|">
+                                    Serviço #1
+                                </small>
+                            </td>
+                            <td class="text-nowrap"
+                                th:text="${'R$ ' + #numbers.formatDecimal(s.valor, 1, 'POINT', 2, 'COMMA')}">
+                                R$ 50,00
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/servicos/edit/{id}(id=${s.id})}">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/servicos/delete/{id}(id=${s.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('Deseja realmente excluir este serviço?');">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<footer class="container app-footer">
+    Projeto para Aula do André • Spring Boot + Thymeleaf + H2
+</footer>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}">
+</script>
+</body>
+</html>

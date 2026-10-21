@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description"
+          content="Crie ou edite uma agenda de serviços, selecione um cliente e defina a data do atendimento.">
+
+    <title th:text="${agenda.id == 0 ? 'Nova agenda' : 'Editar agenda'}
+                    + ' | Agendamento de Serviços'">
+        Nova agenda | Agendamento de Serviços
+    </title>
+
+    <link rel="stylesheet"
+          th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+<header class="app-header">
+    <nav class="navbar navbar-expand" aria-label="Navegação principal">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               th:href="@{/agenda}">
+                <span class="brand-mark" aria-hidden="true">AS</span>
+                <span>Agendamento de Serviços</span>
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="container form-shell">
+
+    <nav aria-label="Navegação estrutural" class="mb-4">
+        <a class="back-link" th:href="@{/agenda}">
+            ← Voltar para as agendas
+        </a>
+    </nav>
+
+    <div class="row g-4 align-items-start">
+
+        <div class="col-lg-4">
+            <p class="eyebrow mb-2">GERENCIAMENTO DE AGENDAS</p>
+
+            <h1 class="display-title form-title"
+                th:text="${agenda.id == 0 ? 'Criar nova agenda' : 'Editar agenda'}">
+                Criar nova agenda
+            </h1>
+
+            <p class="hero-copy mt-3">
+                Organize seus serviços em um só lugar. Selecione o cliente,
+                escolha o serviço, informe a data e hora e descreva os detalhes
+                do atendimento.
+            </p>
+
+            <div class="tip-card mt-4">
+                <strong>Antes de salvar</strong>
+                <span>
+                    Confira o nome do cliente, a data e hora do atendimento
+                    e a descrição do serviço.
+                </span>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <section class="content-card form-card"
+                     aria-label="Dados da agenda">
+
+                <form th:object="${agenda}"
+                      th:action="@{/save}"
+                      method="post"
+                      novalidate>
+
+                    <div class="alert alert-danger"
+                         role="alert"
+                         th:if="${#fields.hasGlobalErrors()}">
+
+                        <p th:each="error : ${#fields.globalErrors()}"
+                           th:text="${error}">
+                            Erro ao salvar o agendamento.
+                        </p>
+                    </div>
+
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="alert alert-danger"
+                         role="alert"
+                         th:if="${#fields.hasAnyErrors()}">
+
+                        <strong>Revise os campos destacados.</strong>
+
+                        <ul class="mb-0 mt-2 ps-3">
+                            <li th:each="erro : ${#fields.detailedErrors()}"
+                                th:text="${erro.message}">
+                                Mensagem de erro
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-7">
+                            <label for="cliente" class="form-label">
+                                Cliente
+                            </label>
+
+                            <select id="cliente"
+                                    class="form-select"
+                                    th:field="*{cliente}"
+                                    th:classappend="${#fields.hasErrors('cliente')}
+                                        ? 'is-invalid'">
+
+                                <option value="">
+                                    Selecione um cliente...
+                                </option>
+
+                                <option th:each="cliente : ${clientes}"
+                                        th:value="${cliente.id}"
+                                        th:text="${cliente.nome}">
+                                    Nome do cliente
+                                </option>
+                            </select>
+
+                            <div class="invalid-feedback"
+                                 th:errors="*{cliente}">
+                                Selecione um cliente.
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <label for="data" class="form-label">
+                                Data e horário
+                            </label>
+
+                            <input type="datetime-local"
+                                   id="data"
+                                   th:field="*{data}"
+                                   class="form-control"
+                                   th:classappend="${#fields.hasErrors('data')}
+                                   ? 'is-invalid'">
+
+                            <div class="invalid-feedback"
+                                 th:errors="*{data}">
+                                Informe uma data e horário válido.
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="servico" class="form-label">
+                                Serviço
+                            </label>
+
+                            <select id="servico"
+                                    class="form-select"
+                                    th:field="*{servico}"
+                                    th:classappend="${#fields.hasErrors('servico')}
+                                        ? 'is-invalid'">
+
+                                <option value="">
+                                    Selecione um serviço...
+                                </option>
+
+                                <option th:each="servico : ${servicos}"
+                                        th:value="${servico.id}"
+                                        th:text="${servico.nome}">
+                                    Nome do serviço
+                                </option>
+                            </select>
+
+                            <div class="invalid-feedback"
+                                 th:errors="*{servico}">
+                                Selecione um serviço.
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="descricao" class="form-label">
+                                Descrição do atendimento
+                            </label>
+
+                            <textarea id="descricao"
+                                      class="form-control"
+                                      rows="6"
+                                      th:field="*{descricao}"
+                                      th:classappend="${#fields.hasErrors('descricao')}
+                                          ? 'is-invalid'"
+                                      placeholder="Descreva o serviço e inclua observações importantes..."
+                                      maxlength="5000"></textarea>
+
+                            <div class="invalid-feedback"
+                                 th:errors="*{descricao}">
+                                Informe a descrição do atendimento.
+                            </div>
+
+                            <div class="form-text">
+                                Máximo de 5.000 caracteres.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/agenda}"
+                           class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4"
+                                th:text="${agenda.id == 0
+                                    ? 'Criar agenda'
+                                    : 'Salvar alterações'}">
+                            Criar agenda
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}">
+</script>
+</body>
+</html>

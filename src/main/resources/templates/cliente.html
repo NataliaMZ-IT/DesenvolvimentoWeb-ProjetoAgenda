@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clientes | Agendamento de Serviços</title>
+
+    <link rel="stylesheet"
+          th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="app-header">
+    <nav class="navbar navbar-expand" aria-label="Navegação principal">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               th:href="@{/agenda}">
+                <span class="brand-mark" aria-hidden="true">AS</span>
+                <span>Agendamento de Serviços</span>
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/agenda}">
+                Agendas
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="container page-shell pb-5">
+
+    <div class="mb-4">
+        <p class="eyebrow mb-2">CADASTROS</p>
+        <h1 class="display-title">Clientes</h1>
+        <p class="hero-copy">
+            Cadastre clientes e gerencie seus dados.
+        </p>
+    </div>
+
+    <div class="alert alert-success" role="status"
+         th:if="${mensagem}" th:text="${mensagem}"></div>
+
+    <div class="alert alert-danger" role="alert"
+         th:if="${erro}" th:text="${erro}"></div>
+
+    <div class="row g-4 align-items-start">
+
+        <!-- Forms to the left -->
+        <div class="col-lg-5">
+            <section class="content-card form-card">
+                <h2 class="h4 mb-4"
+                    th:text="${cliente.id == 0
+                        ? 'Novo cliente' : 'Editar cliente'}">
+                    Novo cliente
+                </h2>
+
+                <form th:action="@{/clientes/save}"
+                      th:object="${cliente}" method="post">
+
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input id="nome" type="text"
+                               class="form-control"
+                               th:field="*{nome}"
+                               maxlength="50" required
+                               th:classappend="${#fields.hasErrors('nome')}
+                                   ? 'is-invalid'">
+                        <div class="invalid-feedback"
+                             th:errors="*{nome}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefone" class="form-label">
+                            Telefone
+                        </label>
+                        <input id="telefone" type="tel"
+                               class="form-control"
+                               th:field="*{telefone}" required
+                               th:classappend="${#fields.hasErrors('telefone')}
+                                   ? 'is-invalid'">
+                        <div class="invalid-feedback"
+                             th:errors="*{telefone}"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input id="email" type="email"
+                               class="form-control"
+                               th:field="*{email}" required
+                               th:classappend="${#fields.hasErrors('email')}
+                                   ? 'is-invalid'">
+                        <div class="invalid-feedback"
+                             th:errors="*{email}"></div>
+                    </div>
+
+                    <h5 class="mt-4 mb-3">Endereço</h5>
+
+                    <div class="mb-3">
+                        <label for="logradouro" class="form-label">Logradouro</label>
+                        <input type="text" id="logradouro" class="form-control"
+                               th:field="*{endereco.logradouro}" required>
+                        <div class="text-danger"
+                             th:errors="*{endereco.logradouro}"></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="numero" class="form-label">Número</label>
+                            <input type="number" id="numero" class="form-control"
+                                   th:field="*{endereco.numero}">
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+                            <label for="complemento" class="form-label">Complemento</label>
+                            <input type="text" id="complemento" class="form-control"
+                                   th:field="*{endereco.complemento}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cidade" class="form-label">Cidade</label>
+                            <input type="text" id="cidade" class="form-control"
+                                   th:field="*{endereco.cidade}" required>
+                            <div class="text-danger"
+                                 th:errors="*{endereco.cidade}"></div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="estado" class="form-label">Estado</label>
+                            <input type="text" id="estado" class="form-control"
+                                   th:field="*{endereco.estado}" required>
+                            <div class="text-danger"
+                                 th:errors="*{endereco.estado}"></div>
+                        </div>
+
+                        <div class="col-md-2 mb-3">
+                            <label for="uf" class="form-label">UF</label>
+                            <input type="text" id="uf" class="form-control"
+                                   th:field="*{endereco.uf}" maxlength="2" required>
+                            <div class="text-danger"
+                                 th:errors="*{endereco.uf}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cep" class="form-label">CEP</label>
+                        <input type="text" id="cep" class="form-control"
+                               th:field="*{endereco.cep}" maxlength="8" required>
+                        <div class="text-danger"
+                             th:errors="*{endereco.cep}"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/clientes}"
+                           class="btn btn-outline-secondary">
+                            Limpar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4"
+                                th:text="${cliente.id == 0
+                                    ? 'Cadastrar cliente' : 'Salvar alterações'}">
+                            Cadastrar cliente
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- List of clients on the right -->
+        <div class="col-lg-7">
+            <section class="content-card">
+                <div class="content-card-header">
+                    <div>
+                        <p class="section-kicker mb-1">GERENCIAMENTO</p>
+                        <h2 class="h4 mb-0">Clientes cadastrados</h2>
+                    </div>
+                    <span class="badge text-bg-light"
+                          th:text="${#lists.size(clientes)}">0</span>
+                </div>
+
+                <div class="empty-state"
+                     th:if="${#lists.isEmpty(clientes)}">
+                    <h3 class="h5">Nenhum cliente cadastrado</h3>
+                    <p class="text-secondary mb-0">
+                        Use o formulário para adicionar um cliente.
+                    </p>
+                </div>
+
+                <div class="table-responsive"
+                     th:unless="${#lists.isEmpty(clientes)}">
+                    <table class="table app-table align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Contato</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="c : ${clientes}">
+                            <td>
+                                <div class="table-title"
+                                     th:text="${c.nome}">Nome</div>
+                                <small class="text-secondary"
+                                       th:text="|Cliente #${c.id}|">
+                                    Cliente #1
+                                </small>
+                            </td>
+                            <td>
+                                <div th:text="${c.telefone}">Telefone</div>
+                            <small class="text-secondary"
+                                   th:text="${c.email}">Email</small>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/clientes/edit/{id}(id=${c.id})}">
+                                        Editar
+                                    </a>
+
+                                    <form th:action="@{/clientes/delete/{id}(id=${c.id})}"
+                                          method="post"
+                                          onsubmit="return confirm('Deseja realmente excluir este cliente?');">
+                                        <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}">
+</script>
+</body>
+</html>

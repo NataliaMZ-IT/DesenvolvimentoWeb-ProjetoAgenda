@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="Crie sua conta no Agendamento de Serviços.">
+
+    <title>Criar conta | Agendamento de Serviços</title>
+
+    <link rel="stylesheet"
+          th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<header class="app-header">
+    <nav class="navbar navbar-expand" aria-label="Navegação principal">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2"
+               th:href="@{/login}">
+                <span class="brand-mark" aria-hidden="true">AS</span>
+                <span>Agendamento de Serviços</span>
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/login}">
+                Já tenho conta
+            </a>
+        </div>
+    </nav>
+</header>
+
+<main class="container auth-shell">
+    <div class="auth-layout">
+
+        <section class="auth-intro">
+            <p class="eyebrow mb-3">COMECE AGORA</p>
+
+            <h1 class="display-title">
+                Organize seus serviços
+                <span class="text-primary">com facilidade.</span>
+            </h1>
+
+            <p class="hero-copy">
+                Crie sua conta e tenha um espaço para organizar
+                seus compromissos e acompanhar suas agendas.
+            </p>
+
+            <div class="auth-highlight">
+                <div class="auth-highlight-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="23" height="23"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M5 21v-2a7 7 0 0 1 14 0v2"/>
+                    </svg>
+                </div>
+                <div>
+                    <strong class="d-block">Cadastro simples</strong>
+                    <span>Crie seu acesso para começar a organizar sua rotina.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-card" aria-labelledby="cadastro-title">
+
+            <div class="auth-card-header">
+                <p class="section-kicker mb-2">NOVA CONTA</p>
+
+                <h2 id="cadastro-title" class="auth-card-title">
+                    Criar minha conta
+                </h2>
+
+                <p class="auth-card-subtitle">
+                    Preencha os campos abaixo para se cadastrar.
+                </p>
+            </div>
+
+            <div class="auth-card-body">
+
+                <div class="alert alert-danger"
+                     role="alert"
+                     th:if="${erro}"
+                     th:text="${erro}">
+                </div>
+
+                <form th:action="@{/register}"
+                      method="post"
+                      th:object="${cadastroDTO}">
+
+                    <div class="mb-3">
+                        <label for="novoUsuario" class="form-label">
+                            Usuário
+                        </label>
+
+                        <input type="text"
+                               id="novoUsuario"
+                               class="form-control"
+                               th:field="*{usuario}"
+                               maxlength="50"
+                               autocomplete="username"
+                               placeholder="Escolha um nome de usuário"
+                               required>
+
+                        <div class="text-danger small"
+                             th:if="${#fields.hasErrors('usuario')}"
+                             th:errors="*{usuario}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="novaSenha" class="form-label">
+                            Senha
+                        </label>
+
+                        <input type="password"
+                               id="novaSenha"
+                               class="form-control"
+                               th:field="*{senha}"
+                               minlength="10"
+                               autocomplete="new-password"
+                               placeholder="Mínimo de 10 caracteres"
+                               required>
+
+                        <div class="text-danger small"
+                             th:if="${#fields.hasErrors('senha')}"
+                             th:errors="*{senha}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmarSenha" class="form-label">
+                            Confirmar Senha
+                        </label>
+
+                        <input type="password"
+                               id="confirmarSenha"
+                               class="form-control"
+                               th:field="*{confirmarSenha}"
+                               minlength="10"
+                               autocomplete="new-password"
+                               placeholder="Digite a senha novamente"
+                               required>
+
+                        <div class="text-danger small"
+                             th:if="${#fields.hasErrors('confirmarSenha')}"
+                             th:errors="*{confirmarSenha}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tipoAcessoId" class="form-label">
+                            Tipo de Acesso:
+                        </label>
+
+                        <select id="tipoAcessoId"
+                                th:field="*{tipoAcessoId}"
+                                class="form-select"
+                                required>
+
+                            <option value="">Selecione um tipo de acesso</option>
+
+                            <option th:each="tipo : ${tiposAcesso}"
+                                    th:value="${tipo.id}"
+                                    th:text="${tipo.descricao}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-primary w-100 mt-2">
+                        Criar minha conta
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    Já tem uma conta?
+                    <a th:href="@{/login}">Entrar</a>
+                </div>
+
+                <p class="auth-security-note mb-0">
+                    Sua senha deve ter pelo menos 10 caracteres.
+                </p>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}">
+</script>
+</body>
+</html>

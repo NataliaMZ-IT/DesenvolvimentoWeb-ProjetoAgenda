@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tentativa de projeto de Agendamento de Serviços com Spring Boot e Thymeleaf">
+    <title>Agendamento de Serviços | Agendas</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.8/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<!-- Header com botões para navegar entre abas -->
+<header class="app-header">
+    <nav class="navbar navbar-expand" aria-label="Navegação principal">
+        <div class="container py-2">
+            <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+                <span class="brand-mark" aria-hidden="true">AS</span>
+                <span>Agendamento de Serviços</span>
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/clientes}">
+                Clientes
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/servicos}">
+                Serviços
+            </a>
+
+            <a class="btn btn-light btn-sm"
+               th:href="@{/agenda}">
+                Agendas
+            </a>
+
+            <a class="btn btn-light btn-sm d-none d-sm-inline-flex align-items-center gap-2" th:href="@{/add}">
+                <span aria-hidden="true">+</span> Nova agenda
+            </a>
+        </div>
+    </nav>
+</header>
+
+<!-- Filtros em baixo do header-->
+<div class="p-3 border-bottom bg-light">
+    <form th:action="@{/agenda}" method="get"
+          class="row g-3 align-items-end">
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <label for="clienteId" class="form-label fw-bold">
+                Cliente
+            </label>
+
+            <select id="clienteId" name="clienteId"
+                    class="form-select">
+                <option value="">Todos os clientes</option>
+
+                <option th:each="cliente : ${clientes}"
+                        th:value="${cliente.id}"
+                        th:text="${cliente.nome}"
+                        th:selected="${clienteId != null and clienteId == cliente.id}">
+                    Cliente
+                </option>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <label for="servicoId" class="form-label fw-bold">
+                Serviço
+            </label>
+
+            <select id="servicoId" name="servicoId"
+                    class="form-select">
+                <option value="">Todos os serviços</option>
+
+                <option th:each="servico : ${servicos}"
+                        th:value="${servico.id}"
+                        th:text="${servico.nome}"
+                        th:selected="${servicoId != null and servicoId == servico.id}">
+                    Serviço
+                </option>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-2">
+            <label for="dataInicial" class="form-label fw-bold">
+                Data inicial
+            </label>
+
+            <input type="date"
+                   id="dataInicial"
+                   name="dataInicial"
+                   class="form-control"
+                   th:value="${dataInicial}">
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-2">
+            <label for="dataFinal" class="form-label fw-bold">
+                Data final
+            </label>
+
+            <input type="date"
+                   id="dataFinal"
+                   name="dataFinal"
+                   class="form-control"
+                   th:value="${dataFinal}">
+        </div>
+
+        <div class="col-12 col-lg-2 d-flex gap-2">
+            <button type="submit"
+                    class="btn btn-primary flex-grow-1">
+                Filtrar
+            </button>
+
+            <a th:href="@{/agenda}"
+               class="btn btn-outline-secondary">
+                Limpar
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<div class="px-3 py-2 border-bottom text-secondary small"
+     th:if="${filtrosAtivos}">
+
+    Exibindo
+    <strong th:text="${#lists.size(agendas)}">0</strong>
+    resultado(s) para os filtros selecionados.
+</div>
+
+<!-- Main body: Cronograma -->
+<main class="container page-shell">
+    <section class="hero-panel mb-4" aria-labelledby="page-title">
+        <div>
+            <p class="eyebrow mb-2">Agenda do Usuário</p>
+            <h1 id="page-title" class="display-title mb-2">Cronograma de Serviços</h1>
+            <p class="hero-copy mb-0">Um cronograma com todas as agendas publicadas pelo usuário, podendo ser filtrado por cliente, serviço ou período.</p>
+        </div>
+    </section>
+
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="status" th:if="${mensagem}">
+        <span th:text="${mensagem}">Operação realizada com sucesso.</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+
+    <section class="content-card" aria-labelledby="list-title">
+        <div class="content-card-header">
+            <div>
+                <p class="section-kicker mb-1">PUBLICAÇÕES</p>
+                <h2 id="list-title" class="h4 mb-0">Todas as agendas</h2>
+            </div>
+            <a class="btn btn-primary d-sm-none" th:href="@{/add}">+ Nova agenda</a>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(agendas)}">
+            <div class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>
+                </svg>
+            </div>
+            <h3 class="h5">Nenhuma agenda com esses filtros</h3>
+            <p class="text-secondary mb-4">Crie uma agenda para aparecer aqui ou manipule os filtros para encontrar uma agenda!</p>
+            <a class="btn btn-primary" th:href="@{/add}">Criar agenda</a>
+        </div>
+
+        <div class="table-responsive" th:unless="${#lists.isEmpty(agendas)}">
+            <table class="table app-table align-middle mb-0">
+                <thead>
+                <tr>
+                    <th scope="col">Agenda</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Data e Hora/th>
+                    <th scope="col">Descição do Serviço</th>
+                    <th scope="col">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="agenda : ${agendas}">
+                    <td>
+                        <div class="agenda-title" th:text="${agenda.servico.nome}">Serviço da agenda</div>
+                        <small class="text-secondary" th:text="|Agenda #${agenda.id}|">Agenda #1</small>
+                    </td>
+                    <td th:text="${agenda.cliente.nome}">Cliente</td>
+                    <td class="text-nowrap" th:text="${agenda.dataFormatada}">01/01/2026 00:00</td>
+                    <td><span class="type-badge" th:text="${agenda.descricao}">Descrição do agendamento</span></td>
+                    <td>
+                        <div class="d-flex justify-content-end gap-2">
+                            <a class="btn btn-sm btn-outline-primary" th:href="@{/edit/{id}(id=${agenda.id})}">Editar</a>
+                            <form th:action="@{/delete/{id}(id=${agenda.id})}" method="post"
+                                  onsubmit="return confirm('Deseja realmente excluir esta agenda?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer class="container app-footer">
+    <span>Projeto para Aula do André • Spring Boot + Thymeleaf + H2</span>
+</footer>
+
+<script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
